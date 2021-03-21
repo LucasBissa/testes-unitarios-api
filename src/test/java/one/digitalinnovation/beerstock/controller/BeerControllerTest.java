@@ -50,6 +50,7 @@ public class BeerControllerTest {
 
     @BeforeEach
     void setUp() {
+    	//cria uma estrutura para simular uma requisição
         mockMvc = MockMvcBuilders.standaloneSetup(beerController)
                 .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                 .setViewResolvers((s, locale) -> new MappingJackson2JsonView())
@@ -58,13 +59,15 @@ public class BeerControllerTest {
 
     @Test
     void whenPOSTIsCalledThenABeerIsCreated() throws Exception {
-        // given
+    	// simula requisição post bem sucedida
+    	
+        // given -> cria um beerDTO para o teste
         BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
 
-        // when
+        // when -> mocka o metodo createBeer
         when(beerService.createBeer(beerDTO)).thenReturn(beerDTO);
 
-        // then
+        // then -> simula uma requisição post e realiza os testes de verificação
         mockMvc.perform(post(BEER_API_URL_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(beerDTO)))
@@ -76,11 +79,13 @@ public class BeerControllerTest {
 
     @Test
     void whenPOSTIsCalledWithoutRequiredFieldThenAnErrorIsReturned() throws Exception {
-        // given
+    	// simula post mal sucedido, por falta de campos obrigatórios
+    	
+        // given -> cria um DTO e seta um campo como null
         BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
         beerDTO.setBrand(null);
 
-        // then
+        // then -> simula a requisição e testa se é recebido um badrequest
         mockMvc.perform(post(BEER_API_URL_PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(beerDTO)))
@@ -89,13 +94,15 @@ public class BeerControllerTest {
 
     @Test
     void whenGETIsCalledWithValidNameThenOkStatusIsReturned() throws Exception {
+    	// simula GET de uma beer existente
+    	
         // given
         BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
 
-        //when
+        //when -> Mocka a chamada do service
         when(beerService.findByName(beerDTO.getName())).thenReturn(beerDTO);
 
-        // then
+        // then -> testa se o resultado do GET é igual ao esperado
         mockMvc.perform(MockMvcRequestBuilders.get(BEER_API_URL_PATH + "/" + beerDTO.getName())
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -106,13 +113,15 @@ public class BeerControllerTest {
 
     @Test
     void whenGETIsCalledWithoutRegisteredNameThenNotFoundStatusIsReturned() throws Exception {
+    	// simula GET de beer não existente
+    	
         // given
         BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
 
-        //when
+        //when -> Mocka beer não encontrada e lança uma exceção
         when(beerService.findByName(beerDTO.getName())).thenThrow(BeerNotFoundException.class);
 
-        // then
+        // then -> testa se o status é NotFound
         mockMvc.perform(MockMvcRequestBuilders.get(BEER_API_URL_PATH + "/" + beerDTO.getName())
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());

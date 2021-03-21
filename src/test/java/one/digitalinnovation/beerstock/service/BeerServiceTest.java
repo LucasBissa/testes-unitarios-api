@@ -52,17 +52,20 @@ public class BeerServiceTest {
 
     @Test
     void whenBeerInformedThenItShouldBeCreated() throws BeerAlreadyRegisteredException {
-        // given
+    	// simulação do metodo createBeer, caso cerveja não exista
+    	
+        // given -> cria uma instância de BeerDto e Beer para os testes 
         BeerDTO expectedBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
         Beer expectedSavedBeer = beerMapper.toModel(expectedBeerDTO);
 
-        // when
+        // when -> Mocka o repositório para retornar empty e salvar nova beer
         when(beerRepository.findByName(expectedBeerDTO.getName())).thenReturn(Optional.empty());
         when(beerRepository.save(expectedSavedBeer)).thenReturn(expectedSavedBeer);
 
-        //then
+        //then -> executa o service com os dados de teste
         BeerDTO createdBeerDTO = beerService.createBeer(expectedBeerDTO);
 
+        // testa se os dados recebidos são iguais aos esperados
         assertThat(createdBeerDTO.getId(), is(equalTo(expectedBeerDTO.getId())));
         assertThat(createdBeerDTO.getName(), is(equalTo(expectedBeerDTO.getName())));
         assertThat(createdBeerDTO.getQuantity(), is(equalTo(expectedBeerDTO.getQuantity())));
@@ -70,54 +73,61 @@ public class BeerServiceTest {
 
     @Test
     void whenAlreadyRegisteredBeerInformedThenAnExceptionShouldBeThrown() {
-        // given
+    	// simulação do metodo createBeer, caso cerveja exista
+    	
+        // given -> cria uma instância de BeerDto e Beer para os testes
         BeerDTO expectedBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
         Beer duplicatedBeer = beerMapper.toModel(expectedBeerDTO);
 
-        // when
+        // when -> Mocka o repositorio para retornar que o valor já existe
         when(beerRepository.findByName(expectedBeerDTO.getName())).thenReturn(Optional.of(duplicatedBeer));
 
-        // then
+        // then -> como a beer já existe dispara uma exceção e verifica se a mesma ocorreu
         assertThrows(BeerAlreadyRegisteredException.class, () -> beerService.createBeer(expectedBeerDTO));
     }
 
     @Test
     void whenValidBeerNameIsGivenThenReturnABeer() throws BeerNotFoundException {
-        // given
+    	// teste do metodo findByName do BeerService, para beer encontrada
+    	
+        // given -> cria DTO e model para o teste
         BeerDTO expectedFoundBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
         Beer expectedFoundBeer = beerMapper.toModel(expectedFoundBeerDTO);
 
-        // when
+        // when -> Mocka a pesquisa no repositório
         when(beerRepository.findByName(expectedFoundBeer.getName())).thenReturn(Optional.of(expectedFoundBeer));
 
-        // then
+        // then -> executa o beerService e compara o valor recebido com o esperado
         BeerDTO foundBeerDTO = beerService.findByName(expectedFoundBeerDTO.getName());
-
         assertThat(foundBeerDTO, is(equalTo(expectedFoundBeerDTO)));
     }
 
     @Test
     void whenNotRegisteredBeerNameIsGivenThenThrowAnException() {
+    	// teste do metodo findByName do BeerService, para beer não existente
+    	
         // given
         BeerDTO expectedFoundBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
 
-        // when
+        // when -> Mocka um Optional empty para a pesquisa de beer
         when(beerRepository.findByName(expectedFoundBeerDTO.getName())).thenReturn(Optional.empty());
 
-        // then
+        // then -> testa se a exceção foi lançada
         assertThrows(BeerNotFoundException.class, () -> beerService.findByName(expectedFoundBeerDTO.getName()));
     }
 
     @Test
     void whenListBeerIsCalledThenReturnAListOfBeers() {
+    	// testa o metodo listAll do service, em caso de valores encontrados
+    	
         // given
         BeerDTO expectedFoundBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
         Beer expectedFoundBeer = beerMapper.toModel(expectedFoundBeerDTO);
 
-        //when
+        //when -> Mocka o resultado do repositório
         when(beerRepository.findAll()).thenReturn(Collections.singletonList(expectedFoundBeer));
 
-        //then
+        //then -> testa se a lista não está vazia e verifica o primeiro elemento 
         List<BeerDTO> foundListBeersDTO = beerService.listAll();
 
         assertThat(foundListBeersDTO, is(not(empty())));
