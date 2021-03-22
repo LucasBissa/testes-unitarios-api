@@ -129,13 +129,15 @@ public class BeerControllerTest {
 
     @Test
     void whenGETListWithBeersIsCalledThenOkStatusIsReturned() throws Exception {
+    	// Teste requisição GET, chamando listAll
+    	
         // given
         BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
 
-        //when
+        //when -> Mocka lista
         when(beerService.listAll()).thenReturn(Collections.singletonList(beerDTO));
 
-        // then
+        // then -> faz uma requisição GET e testa o retorno
         mockMvc.perform(MockMvcRequestBuilders.get(BEER_API_URL_PATH)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -146,13 +148,12 @@ public class BeerControllerTest {
 
     @Test
     void whenGETListWithoutBeersIsCalledThenOkStatusIsReturned() throws Exception {
-        // given
-        BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+    	// teste GET, com retorno de lista vazia
+    	
+        //when -> Mocka lista vazia
+        when(beerService.listAll()).thenReturn(Collections.EMPTY_LIST);
 
-        //when
-        when(beerService.listAll()).thenReturn(Collections.singletonList(beerDTO));
-
-        // then
+        // then -> verifica se status é OK
         mockMvc.perform(MockMvcRequestBuilders.get(BEER_API_URL_PATH)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -160,6 +161,8 @@ public class BeerControllerTest {
 
     @Test
     void whenDELETEIsCalledWithValidIdThenNoContentStatusIsReturned() throws Exception {
+    	// DELETE, caso beer exista
+    	
         // given
         BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
 
@@ -174,7 +177,9 @@ public class BeerControllerTest {
 
     @Test
     void whenDELETEIsCalledWithInvalidIdThenNotFoundStatusIsReturned() throws Exception {
-        //when
+        // DELETE, caso beer não exista
+    	
+    	//when -> Mocka exception
         doThrow(BeerNotFoundException.class).when(beerService).deleteById(INVALID_BEER_ID);
 
         // then

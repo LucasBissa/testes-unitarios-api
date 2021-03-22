@@ -136,10 +136,12 @@ public class BeerServiceTest {
 
     @Test
     void whenListBeerIsCalledThenReturnAnEmptyListOfBeers() {
-        //when
+    	// testa listAll, em caso de valores não encontrados
+    	
+        //when -> Mocka uma lista vazia
         when(beerRepository.findAll()).thenReturn(Collections.EMPTY_LIST);
 
-        //then
+        //then -> executa o listAll e verifica se a lista está vazia
         List<BeerDTO> foundListBeersDTO = beerService.listAll();
 
         assertThat(foundListBeersDTO, is(empty()));
@@ -147,7 +149,9 @@ public class BeerServiceTest {
 
     @Test
     void whenExclusionIsCalledWithValidIdThenABeerShouldBeDeleted() throws BeerNotFoundException{
-        // given
+        // testa exclusão de beer
+    	
+    	// given
         BeerDTO expectedDeletedBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
         Beer expectedDeletedBeer = beerMapper.toModel(expectedDeletedBeerDTO);
 
@@ -155,7 +159,7 @@ public class BeerServiceTest {
         when(beerRepository.findById(expectedDeletedBeerDTO.getId())).thenReturn(Optional.of(expectedDeletedBeer));
         doNothing().when(beerRepository).deleteById(expectedDeletedBeerDTO.getId());
 
-        // then
+        // then -> executa deleteById e verifica a chamada dos metodos
         beerService.deleteById(expectedDeletedBeerDTO.getId());
 
         verify(beerRepository, times(1)).findById(expectedDeletedBeerDTO.getId());
@@ -164,7 +168,9 @@ public class BeerServiceTest {
 
     @Test
     void whenIncrementIsCalledThenIncrementBeerStock() throws BeerNotFoundException, BeerStockExceededException {
-        //given
+        // 
+    	
+    	//given
         BeerDTO expectedBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
         Beer expectedBeer = beerMapper.toModel(expectedBeerDTO);
 
