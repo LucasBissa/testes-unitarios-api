@@ -168,7 +168,7 @@ public class BeerServiceTest {
 
     @Test
     void whenIncrementIsCalledThenIncrementBeerStock() throws BeerNotFoundException, BeerStockExceededException {
-        // 
+        // testa metodo increment, quando valor é menor que o valor MAX permitido
     	
     	//given
         BeerDTO expectedBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
@@ -190,17 +190,23 @@ public class BeerServiceTest {
 
     @Test
     void whenIncrementIsGreatherThanMaxThenThrowException() {
+    	// increment, quando valor a incrementar é maior que MAX
+    	
         BeerDTO expectedBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
         Beer expectedBeer = beerMapper.toModel(expectedBeerDTO);
 
         when(beerRepository.findById(expectedBeerDTO.getId())).thenReturn(Optional.of(expectedBeer));
 
         int quantityToIncrement = 80;
+        
+        // testa exception
         assertThrows(BeerStockExceededException.class, () -> beerService.increment(expectedBeerDTO.getId(), quantityToIncrement));
     }
 
     @Test
     void whenIncrementAfterSumIsGreatherThanMaxThenThrowException() {
+    	// increment, quando valor final é maior que MAX
+    	
         BeerDTO expectedBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
         Beer expectedBeer = beerMapper.toModel(expectedBeerDTO);
 
@@ -212,6 +218,8 @@ public class BeerServiceTest {
 
     @Test
     void whenIncrementIsCalledWithInvalidIdThenThrowException() {
+    	// increment, quando id não existe
+    	
         int quantityToIncrement = 10;
 
         when(beerRepository.findById(INVALID_BEER_ID)).thenReturn(Optional.empty());
